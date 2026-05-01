@@ -120,11 +120,6 @@ function createCommentElement(data, docId) {
     <i class="fa-regular fa-thumbs-up"></i> ${data.likes || 0}
   </button>
 
-  ${data.author === "Shibu A" ? `
-    <button class="comment-delete" data-id="${docId}">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-  ` : ""}
 </div>
 
     </div>
