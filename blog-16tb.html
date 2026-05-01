@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16TB Gone in One Click | Shibu A</title>
+  <link rel="stylesheet" href="Style.css">
+  <link rel="stylesheet" href="blog-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+</head>
+<body class="blog-body">
+
+<!-- Back button -->
+<a href="index.html#blogs" class="blog-back-btn">
+  <i class="fa-solid fa-arrow-left"></i> Back to Portfolio
+</a>
+
+<article class="blog-article">
+
+  <!-- ══ HERO ══ -->
+  <header class="blog-hero">
+    <div class="blog-hero-inner">
+      <div class="blog-meta-top">
+        <span class="blog-tag">💾 Dell EMC NetWorker</span>
+        <span class="blog-tag">🧩 RCA</span>
+        <span class="blog-tag">🔥 War Story</span>
+      </div>
+      <h1 class="blog-title">16TB Gone in One Click</h1>
+      <p class="blog-subtitle">
+        How a bank lost 16 terabytes of 7-year compliance data overnight — and how I went back in time to find out why.
+      </p>
+      <div class="blog-meta-bottom">
+        <img src="assets/img/blog-author.jpg" alt="Shibu A" class="blog-author-avatar">
+        <div>
+          <span class="blog-author-name">Shibu A</span>
+          <span class="blog-read-time">⏱ 8 min read &nbsp;·&nbsp; Technical Story</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ CONTENT ══ -->
+  <div class="blog-content">
+
+    <!-- Chapter 1 -->
+    <div class="blog-chapter-marker">Chapter 1</div>
+    <h2 class="blog-h2">☕ A Normal Day That Wasn't</h2>
+
+    <p>Coffee. Tickets. The usual hum of a support desk doing its thing.</p>
+    <p>Then my colleague picks up a case. Routine check — bank client, enterprise backup environment, Dell EMC NetWorker. He stares at the case description for a second, then reads it again.</p>
+
+    <blockquote class="blog-quote">
+      "16TB of backup data is <em>missing</em>."
+    </blockquote>
+
+    <p>Not failed. Not corrupted. Not pending. <strong>Missing.</strong></p>
+    <p>Now if you know NetWorker even a little, you know that word doesn't belong in the same sentence as it. NetWorker doesn't just wake up on a Tuesday and decide to delete data. That's not how it works. That's not how <em>any</em> of this works.</p>
+    <p>But try explaining that to a top-tier bank that's already halfway through drafting an escalation email.</p>
+
+    <!-- Callout box -->
+    <div class="blog-callout blog-callout--info">
+      <div class="blog-callout-icon">🏦</div>
+      <div>
+        <strong>The Stakes</strong><br>
+        This wasn't a startup or some small business. This was one of India's top banks. The backup in question was for a <em>critical application</em> — the kind you can't take offline for a cold backup. 7-year retention. Compliance requirement. Banking regulation. The whole works.
+      </div>
+    </div>
+
+    <!-- ══ ARCHITECTURE DIAGRAM ══ -->
+    <div class="blog-diagram-wrap">
+      <div class="blog-diagram-title">The Backup Architecture</div>
+      <div class="blog-arch-diagram">
+        <div class="arch-node arch-app">
+          <div class="arch-icon">📱</div>
+          <div class="arch-label">Critical App</div>
+          <div class="arch-sub">OnDemand Trigger</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">Backup Action</div>
+        </div>
+        <div class="arch-node arch-dd">
+          <div class="arch-icon">🗄️</div>
+          <div class="arch-label">Data Domain</div>
+          <div class="arch-sub">2-Month Retention</div>
+        </div>
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">Clone Action</div>
+        </div>
+        <div class="arch-node arch-tape">
+          <div class="arch-icon">📼</div>
+          <div class="arch-label">LTO-8 Tape Library</div>
+          <div class="arch-sub">7-Year Retention</div>
+        </div>
+      </div>
+      <div class="arch-rule">
+        <span>🔒</span> Banking compliance: tapes are <strong>never reused</strong>. Once full, they're pulled and stored cold.
+      </div>
+    </div>
+
+    <p>The workflow had been running clean for months. Backup triggers, data goes to Data Domain, clone goes to tape, everything happy. Until one day the backup admin notices something very, very wrong.</p>
+
+    <div class="blog-callout blog-callout--danger">
+      <div class="blog-callout-icon">🚨</div>
+      <div>
+        <strong>The Red Flag</strong><br>
+        A tape belonging to this workflow was being <strong>relabeled</strong>. The admin caught it mid-process and pulled the emergency brake — stopped the backup job immediately.
+      </div>
+    </div>
+
+    <p>Relabeling a tape means one thing: the system believes the data on it is <em>no longer needed</em>. It's essentially saying "this tape is free real estate." And in this case, that "free real estate" held 16TB of 7-year compliance data.</p>
+    <p>The admin panicked. Stopped the job. Escalation started. My colleague took the case.</p>
+
+    <!-- Chapter 2 -->
+    <div class="blog-chapter-marker">Chapter 2</div>
+    <h2 class="blog-h2">🕵️ Taking Ownership of a Mystery</h2>
+
+    <p>My colleague did the initial analysis. Checked Action logs. Checked the media database. Cross-referenced everything. There was <strong>no trace</strong> of why this happened. The logs confidently stated:</p>
+
+    <div class="blog-terminal">
+      <div class="blog-terminal-bar">
+        <span class="t-dot t-red"></span>
+        <span class="t-dot t-yellow"></span>
+        <span class="t-dot t-green"></span>
+        <span class="t-title">NetWorker mminfo output</span>
+      </div>
+      <div class="blog-terminal-body">
+        <span class="t-prompt">$</span> mminfo -a -q "name=/critical_app_backup"<br>
+        <span class="t-output">mminfo: no matches found for the query</span><br>
+        <span class="t-output"></span><br>
+        <span class="t-comment"># Backup/clone completed with 2months/7years retention. But deleted within a month.</span><br>
+        <span class="t-comment"># Nothing suggests this data should have been removed.</span><br>
+        <span class="t-comment"># And yet... the tape is being relabeled.</span>
+      </div>
+    </div>
+
+    <p>The escalation was already brewing. The customer was fully convinced NetWorker had a bug. They had every receipt — the backup completed, the clone completed, logs showed 7-year retention. And yet the data was gone and the tape was being recycled.</p>
+
+    <p><em>I jumped in and took ownership of the case.</em></p>
+
+    <p>Not because I had answers. But because nobody did, and someone had to.</p>
+
+    <p>I set two goals. In order:</p>
+    <ol class="blog-ol">
+      <li><strong>Recover as much data as possible.</strong> The bank needed that data. 7 years of compliance data doesn't just disappear without consequence.</li>
+      <li><strong>Find the actual root cause.</strong> Because "I don't know why this happened" is not something you say to a bank twice.</li>
+    </ol>
+
+    <!-- Chapter 3 -->
+    <div class="blog-chapter-marker">Chapter 3</div>
+    <h2 class="blog-h2">🧊 The Cold Reality of What We Had</h2>
+
+    <p>First thing — Data Domain. Could we recover from there? I checked.</p>
+    <p>Nope. Long gone. The data had already been removed from Data Domain before anyone noticed.</p>
+    <p>Tapes, then. The backup had spanned across two tapes:</p>
+
+    <div class="blog-tape-diagram">
+      <div class="tape-item tape-safe">
+        <div class="tape-icon">📼</div>
+        <div class="tape-info">
+          <div class="tape-label">Tape 1</div>
+          <div class="tape-size">~15 TB</div>
+          <div class="tape-status tape-status--safe">✅ Safe — pulled & stored cold</div>
+        </div>
+      </div>
+      <div class="tape-plus">+</div>
+      <div class="tape-item tape-dead">
+        <div class="tape-icon">💀</div>
+        <div class="tape-info">
+          <div class="tape-label">Tape 2</div>
+          <div class="tape-size">~1 TB (tail data)</div>
+          <div class="tape-status tape-status--dead">❌ Relabeled & overwritten</div>
+        </div>
+      </div>
+      <div class="tape-equals">=</div>
+      <div class="tape-item tape-broken">
+        <div class="tape-icon">🔗</div>
+        <div class="tape-info">
+          <div class="tape-label">Saveset State</div>
+          <div class="tape-size">Broken chain</div>
+          <div class="tape-status tape-status--broken">⚠️ Tailless — incomplete</div>
+        </div>
+      </div>
+    </div>
+
+    <p>In the backup world, a saveset is like a book. If someone rips out the last chapter, you don't have a complete book anymore. Standard restore? Won't work. The system knows the saveset is incomplete and refuses to restore it cleanly.</p>
+    <p>It's like a key with half its teeth missing. It exists. But it won't open anything useful.</p>
+
+    <!-- Chapter 4 — UASM -->
+    <div class="blog-chapter-marker">Chapter 4</div>
+    <h2 class="blog-h2">💡 The Tool I Underestimated: UASM</h2>
+
+    <p>I had used UASM before. But only for basic stuff — controlling backup or clone actions from CLI. I never pushed it. Never needed to.</p>
+    <p>This time I had no choice. Standard tools weren't going to cut it.</p>
+
+    <div class="blog-callout blog-callout--info">
+      <div class="blog-callout-icon">🔧</div>
+      <div>
+        <strong>What is UASM?</strong><br>
+        UASM (User-mode Application Specific Module) is a NetWorker CLI utility that gives you raw, low-level control over backup and recovery operations — bypassing the usual metadata requirements. It doesn't care about pretty, complete savesets. It just pulls data directly.
+      </div>
+    </div>
+
+    <p>Here's the plan I proposed:</p>
+
+    <div class="blog-plan">
+      <div class="plan-step">
+        <div class="plan-num">01</div>
+        <div class="plan-content">
+          <div class="plan-title">Retrieve Tape 1 from cold storage</div>
+          <div class="plan-desc">The ejected tape was physically stored offsite. We needed it back in the library — but <em>not</em> mounted yet, just loaded.</div>
+        </div>
+      </div>
+      <div class="plan-step">
+        <div class="plan-num">02</div>
+        <div class="plan-content">
+          <div class="plan-title">Scan the saveset index</div>
+          <div class="plan-desc">Run a scanner against the tape to rebuild whatever index metadata we could, even with the tail missing.</div>
+        </div>
+      </div>
+      <div class="plan-step">
+        <div class="plan-num">03</div>
+        <div class="plan-content">
+          <div class="plan-title">UASM direct recovery to storage node</div>
+          <div class="plan-desc">Use the storage node CLI to run UASM recovery — extracting data directly to local disk, ignoring the missing tail.</div>
+        </div>
+      </div>
+      <div class="plan-step">
+        <div class="plan-num">04</div>
+        <div class="plan-content">
+          <div class="plan-title">Backup recovered data back to tape</div>
+          <div class="plan-desc">Create a temporary workflow, back up the recovered data from disk to a fresh tape with proper 7-year retention. Data lives again.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="blog-callout blog-callout--success">
+      <div class="blog-callout-icon">🍀</div>
+      <div>
+        <strong>Lucky break</strong><br>
+        The storage node had ~20TB of free disk space. Without that, this entire plan collapses. Sometimes the universe cooperates.
+      </div>
+    </div>
+
+    <!-- Terminal for UASM -->
+    <div class="blog-terminal">
+      <div class="blog-terminal-bar">
+        <span class="t-dot t-red"></span>
+        <span class="t-dot t-yellow"></span>
+        <span class="t-dot t-green"></span>
+        <span class="t-title">Storage Node CLI — UASM Recovery</span>
+      </div>
+      <div class="blog-terminal-body">
+        <span class="t-comment"># Step 1: Load tape without mounting</span><br>
+        <span class="t-prompt">$</span> nsrjb -l -S <span class="t-highlight">TAPE_VOL_001</span><br>
+        <span class="t-output">Tape loaded successfully.</span><br><br>
+        <span class="t-comment"># Step 2: Scan saveset index</span><br>
+        <span class="t-prompt">$</span> scanner -v -S TAPE_VOL_001<br>
+        <span class="t-output">Scanning volume TAPE_VOL_001...</span><br>
+        <span class="t-output">Found saveset: ssid=XXXXXXX  [partial - tail missing]</span><br><br>
+        <span class="t-comment"># Step 3: UASM recovery to local path</span><br>
+        <span class="t-prompt">$</span> uasm -r -f /recover/critical_app/ -v<br>
+        <span class="t-output">Starting recovery from tape...</span><br>
+        <span class="t-output">Recovering chunk 1/1024... </span><br>
+        <span class="t-output">Recovering chunk 512/1024...</span><br>
+        <span class="t-output">Recovering chunk 1024/1024...</span><br>
+        <span class="t-output"><span class="t-success">Recovery complete: 15,360 GB restored to /recover/critical_app/</span></span>
+      </div>
+    </div>
+
+    <p>Slowly, data started coming back. No dramatic fanfare. Just steady progress — chunk by chunk, the 15TB reappearing on disk. We then backed it up to a new tape with correct retention.</p>
+
+    <p>Not perfect. The 1TB tail was gone forever. But no longer catastrophic.</p>
+
+    <blockquote class="blog-quote">
+      Recovery ✅ done. Now the harder question: <em>why did this happen at all?</em>
+    </blockquote>
+
+    <!-- Chapter 5 — Going Back in Time -->
+    <div class="blog-chapter-marker">Chapter 5</div>
+    <h2 class="blog-h2">⏳ "Go Back in Time" — Seriously?</h2>
+
+    <p>I reached out to the L3 SMEs. Explained the situation. Asked for an action plan.</p>
+    <p>Their response?</p>
+
+    <blockquote class="blog-quote">
+      "Go to the past. Check when the data actually expired."
+    </blockquote>
+
+    <p>I stared at that for a moment. <em>Go to the past.</em> Right. Very helpful. Thanks L3.</p>
+    <p>Except — they weren't being philosophical. They were talking about <strong>Bootstrap Backups</strong>.</p>
+
+    <div class="blog-callout blog-callout--info">
+      <div class="blog-callout-icon">🧠</div>
+      <div>
+        <strong>What is a Bootstrap Backup?</strong><br>
+        A Bootstrap is NetWorker's self-backup — it runs every day and captures the server's entire brain: media database, resource files, auth config. It's what you use to rebuild a NetWorker server from scratch after a disaster. But here's the thing — it's also a <em>time machine</em>. Every day's bootstrap = a snapshot of what NetWorker <em>thought</em> was true on that date.
+      </div>
+    </div>
+
+    <!-- Timeline diagram -->
+    <div class="blog-timeline">
+      <div class="timeline-title">Replaying the Bootstrap Timeline</div>
+      <div class="timeline-track">
+        <div class="tl-item tl-ok">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Day 1</div>
+          <div class="tl-desc">Backup runs.<br>7yr retention ✅</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item tl-ok">
+          <div class="tl-dot"></div>
+          <div class="tl-date">Week 1-3</div>
+          <div class="tl-desc">Everything<br>normal ✅</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item tl-warn">
+          <div class="tl-dot tl-dot--warn"></div>
+          <div class="tl-date">Day ~25</div>
+          <div class="tl-desc">⚠️ Retention<br>change made</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item tl-bad">
+          <div class="tl-dot tl-dot--bad"></div>
+          <div class="tl-date">Day ~26</div>
+          <div class="tl-desc">💀 Saveset<br>marked expired</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item tl-bad">
+          <div class="tl-dot tl-dot--bad"></div>
+          <div class="tl-date">Day ~27</div>
+          <div class="tl-desc">🗑️ Data Domain<br>data wiped</div>
+        </div>
+        <div class="tl-line"></div>
+        <div class="tl-item tl-bad">
+          <div class="tl-dot tl-dot--bad"></div>
+          <div class="tl-date">Day ~30</div>
+          <div class="tl-desc">📼 Tape<br>relabeled 🚨</div>
+        </div>
+      </div>
+    </div>
+
+    <p>We pulled a full month of bootstrap backups. Restored them all into an isolated folder. Took them back to my own lab. Then replayed the media database state — day by day — watching for when things changed.</p>
+
+    <p>Day 1: retention correct. Day 5: correct. Day 10: correct. Day 20: correct. Day 24: correct. Day 25…</p>
+
+    <p><strong>Day 25: The savesets were marked as expired.</strong></p>
+    <p>Weeks before they should have been. Something changed on Day 25.</p>
+
+    <!-- Chapter 6 — The Truth -->
+    <div class="blog-chapter-marker">Chapter 6</div>
+    <h2 class="blog-h2">🧨 The Truth Nobody Wanted to Hear</h2>
+
+    <p>Audit logs. That's where we went next.</p>
+    <p>NetWorker keeps detailed audit logs of every action taken — who did what, when, from which IP, on which saveset.</p>
+
+    <div class="blog-terminal">
+      <div class="blog-terminal-bar">
+        <span class="t-dot t-red"></span>
+        <span class="t-dot t-yellow"></span>
+        <span class="t-dot t-green"></span>
+        <span class="t-title">NetWorker Audit Log — Day 25</span>
+      </div>
+      <div class="blog-terminal-body">
+        <span class="t-prompt">$</span> nsr_audit_log -s nsrserver -t "DD/MM/YY 00:00:00" -e "DD+1/MM/YY 23:59:59"<br><br>
+        <span class="t-output">DD/MM/YY 14:32:17  user: backup_admin@bankhost</span><br>
+        <span class="t-output">  action: modify saveset retention</span><br>
+        <span class="t-output">  ssid: XXXXXXX (critical_app_backup)</span><br>
+        <span class="t-output">  old retention: <span class="t-highlight">7 years</span></span><br>
+        <span class="t-output">  new retention: <span class="t-error">Expire Immediately</span></span><br><br>
+        <span class="t-comment"># Also affected: 4 other savesets in same session</span><br>
+        <span class="t-comment"># User action: UI dropdown — selected wrong option</span>
+      </div>
+    </div>
+
+    <p>There it was.</p>
+    <p>The customer had intended to <em>extend</em> the retention on some savesets. The UI has a dropdown. They opened it. They saw the options. And instead of picking a longer date… they clicked <strong>"Expire Immediately."</strong></p>
+
+    <p>One click.</p>
+    <p>No warning popup. No "are you sure you want to delete 16TB of banking compliance data?" confirmation dialog. Just — done.</p>
+
+    <!-- Domino diagram -->
+    <div class="blog-domino">
+      <div class="domino-title">The Domino Chain 🁣</div>
+      <div class="domino-row">
+        <div class="domino-item">
+          <div class="domino-num">1</div>
+          <div class="domino-text">"Expire Immediately" clicked on saveset</div>
+        </div>
+        <div class="domino-arrow">→</div>
+        <div class="domino-item">
+          <div class="domino-num">2</div>
+          <div class="domino-text">Next day: expiration job runs, removes from Data Domain</div>
+        </div>
+        <div class="domino-arrow">→</div>
+        <div class="domino-item">
+          <div class="domino-num">3</div>
+          <div class="domino-text">Tape copies marked eligible for reuse</div>
+        </div>
+        <div class="domino-arrow">→</div>
+        <div class="domino-item">
+          <div class="domino-num">4</div>
+          <div class="domino-text">Next clone job to this pool: tape gets relabeled</div>
+        </div>
+        <div class="domino-arrow">→</div>
+        <div class="domino-item domino-item--end">
+          <div class="domino-num">💀</div>
+          <div class="domino-text">16TB of 7-year compliance data gone</div>
+        </div>
+      </div>
+      <p class="domino-note">Zero bugs. Zero NetWorker issues. 100% by-design behavior — executing exactly what it was told to do.</p>
+    </div>
+
+    <p>This is the part where you have to deliver the news carefully. Because technically you're about to tell a bank:</p>
+
+    <blockquote class="blog-quote">
+      "You deleted your own data. NetWorker was innocent the whole time."
+    </blockquote>
+
+    <p>We presented the evidence. Audit logs, bootstrap timeline, the whole story. It was received… professionally. Quietly. The kind of quiet that means someone is having a very bad internal conversation.</p>
+
+    <!-- Chapter 7 — Aftermath -->
+    <div class="blog-chapter-marker">Chapter 7</div>
+    <h2 class="blog-h2">🧯 The 45-Day Cleanup</h2>
+
+    <p>This wasn't the end. We now had to make sure the <em>same mistake</em> hadn't happened to other savesets. The customer had changed retention on multiple savesets that day.</p>
+
+    <p>So we went through every tape in that library that might be affected. Loaded them, ran the scanner, checked retention values, corrected them back to compliance dates. Tape by tape. Saveset by saveset.</p>
+
+    <div class="blog-stats">
+      <div class="stat-item">
+        <div class="stat-num">45</div>
+        <div class="stat-label">Days to fully resolve</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">15TB</div>
+        <div class="stat-label">Data recovered</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Wrong click. That's all it took.</div>
+      </div>
+    </div>
+
+    <p>Long process. Necessary process. Every tape had to be verified. Every retention date had to match compliance requirements. We rebuilt what we could, documented what we couldn't, and made sure it wouldn't silently fail again.</p>
+
+    <!-- Takeaways -->
+    <div class="blog-chapter-marker">Final Thoughts</div>
+    <h2 class="blog-h2">🎯 What This Case Changed for Me</h2>
+
+    <p>Technically, this was a fascinating case. UASM recovery of a tailless saveset. Time-travel debugging via bootstrap history. Audit log forensics. All great stuff to add to the toolbelt.</p>
+
+    <p>But the real lesson wasn't technical.</p>
+
+    <div class="blog-callout blog-callout--purple">
+      <div class="blog-callout-icon">💬</div>
+      <div>
+        <strong>The real lesson:</strong><br>
+        Backup systems don't fail dramatically. They fail <em>quietly</em> — when a small mistake slips through and nobody notices until it's too late. NetWorker didn't delete 16TB of data. It followed instructions. A human made the decision. The system did exactly what it was told.
+      </div>
+    </div>
+
+    <p>And ever since that case — without exception — whenever someone says <em>"we didn't change anything,"</em> my immediate next move is to check the audit logs. Because someone always changed something.</p>
+
+    <p>Always.</p>
+
+<!-- ══ DISCUSSION SECTION ══ -->
+<section class="discussion-section">
+
+  <!-- Title -->
+  <div class="discussion-header">
+    <h2>
+      <i class="fa-solid fa-comment"></i> Discussion
+    </h2>
+    <p class="discussion-subtitle">
+      Had a similar war story? A question about UASM or NetWorker? Drop it below.
+    </p>
+  </div>
+
+  <!-- INPUT -->
+  <div class="comment-input-wrap">
+    
+    <textarea 
+      class="comment-input" 
+      id="commentInput"
+      placeholder="Share your thoughts, questions, or your own backup horror story..."
+      rows="4"
+      maxlength="500"
+    ></textarea>
+
+    <div class="comment-input-actions">
+      <span class="comment-char-count" id="charCount">0 / 500</span>
+
+      <button 
+        class="comment-submit-btn"
+        id="postCommentBtn"
+        type="button"
+      >
+        <i class="fa-solid fa-paper-plane"></i> Post Comment
+      </button>
+    </div>
+
+  </div>
+
+
+</section>
+
+  <!-- COMMENTS LIST -->
+<div id="commentsContainer" class="comments-list"></div>
+
+    <!-- SAMPLE COMMENT (TEMPLATE) -->
+    <div class="comment-card">
+
+      <div class="comment-avatar">S</div>
+
+      <div class="comment-body">
+        
+        <div class="comment-top">
+          <span class="comment-author">Shibu A</span>
+          <span class="comment-badge">Author</span>
+          <span class="comment-time">Just now</span>
+        </div>
+
+        <p class="comment-text">
+          Happy to answer any NetWorker questions or talk through similar cases.
+        </p>
+
+        <div class="comment-actions">
+          <button class="comment-like">
+            <i class="fa-regular fa-thumbs-up"></i> 0
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</article>
+
+<script type="module" src="blog.js"></script>
+
+</body>
+</html>
