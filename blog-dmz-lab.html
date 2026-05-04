@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My "Secure" Network Wasn't Actually Secure | Shibu A</title>
+  <meta name="description" content="I built a DMZ lab to prove I understood network isolation. Then the website loaded without NAT. Without port forwarding. Without any rules. That's when the real learning started.">
+  <meta name="keywords" content="DMZ lab, Windows Server RRAS, NAT, port forwarding, network isolation, IIS, DHCP, APIPA, home lab, network security, Shibu A">
+  <meta name="author" content="Shibu A">
+  <meta property="og:title" content="My 'Secure' Network Wasn't Actually Secure — DMZ Lab">
+  <meta property="og:description" content="I built a DMZ to prove I understood isolation. The website loaded anyway. Here's what I learned.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://dhasli.github.io/Portfolio/blog-dmz-lab.html">
+
+  <link rel="stylesheet" href="Style.css">
+  <link rel="stylesheet" href="blog-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── IP ADDRESS CHIP ── */
+    .ip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(79,143,230,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(79,143,230,0.25);
+      border-radius: 4px;
+      padding: 1px 7px;
+      white-space: nowrap;
+    }
+
+    /* ── ARCHITECTURE DIAGRAM ── */
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin: 32px 0;
+    }
+    .arch-title {
+      font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 24px;
+    }
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0;
+      align-items: center;
+    }
+    .arch-zone {
+      border-radius: 12px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+    .zone-internal { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.25); }
+    .zone-dmz      { background: rgba(79,143,230,0.07); border: 1px solid rgba(79,143,230,0.25); }
+    .zone-external { background: rgba(234,179,8,0.07);  border: 1px solid rgba(234,179,8,0.25); }
+    .zone-icon { font-size: 28px; margin-bottom: 8px; }
+    .zone-name { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .zone-internal .zone-name { color: #4ade80; }
+    .zone-dmz      .zone-name { color: var(--accent); }
+    .zone-external .zone-name { color: #facc15; }
+    .zone-subnet { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+    .zone-device { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+    .zone-device strong { display: block; color: var(--text-primary); font-size: 12px; margin-bottom: 2px; }
+
+    .arch-arrow {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 8px; gap: 4px;
+    }
+    .arch-arrow-line {
+      width: 48px; height: 2px;
+      background: linear-gradient(90deg, var(--border-hover), var(--border));
+      position: relative;
+    }
+    .arch-arrow-line::after {
+      content: '▶'; position: absolute; right: -8px; top: -7px;
+      font-size: 10px; color: var(--text-muted);
+    }
+    .arch-arrow-label { font-size: 10px; color: var(--text-muted); text-align: center; }
+
+    /* Master server block above */
+    .master-block {
+      background: rgba(124,106,247,0.08);
+      border: 1px solid rgba(124,106,247,0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .master-icon { font-size: 32px; }
+    .master-info { flex: 1; }
+    .master-name { font-size: 14px; font-weight: 700; color: #c4b5fd; margin-bottom: 6px; }
+    .master-services {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .svc-tag {
+      font-size: 11px; background: rgba(124,106,247,0.12);
+      color: #a78bfa; border: 1px solid rgba(124,106,247,0.2);
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .master-nics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .nic {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      padding: 3px 10px; border-radius: 6px; font-weight: 500;
+    }
+    .nic-int { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .nic-dmz { background: rgba(79,143,230,0.12); color: var(--accent); border: 1px solid rgba(79,143,230,0.2); }
+    .nic-ext { background: rgba(234,179,8,0.12); color: #facc15; border: 1px solid rgba(234,179,8,0.2); }
+
+    /* ── TRAFFIC FLOW ANIMATION ── */
+    .traffic-flow {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 32px 0;
+      overflow: hidden;
+    }
+    .tf-title { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px; }
+    .tf-track {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .tf-node {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      flex-shrink: 0; min-width: 80px;
+    }
+    .tf-node-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; border: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+    .tf-node-label { font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.4; }
+    .tf-node-ip { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); text-align: center; }
+    .tf-connector {
+      flex: 1; min-width: 40px; position: relative; height: 40px;
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+    .tf-line {
+      width: 100%; height: 2px; background: var(--border);
+      position: relative; overflow: hidden;
+    }
+    .tf-line::after {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: flowPacket 2.5s linear infinite;
+    }
+    .tf-line-return::after {
+      background: linear-gradient(90deg, transparent, #4ade80, transparent);
+      animation-delay: 1.25s;
+      animation-direction: reverse;
+    }
+    @keyframes flowPacket {
+      0%   { left: -60%; }
+      100% { left: 100%; }
+    }
+    .tf-step-badge {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: white;
+      font-size: 9px; font-weight: 700; width: 18px; height: 18px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .tf-step-label {
+      position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; color: var(--text-muted); white-space: nowrap;
+    }
+
+    /* ── ISSUE CARDS ── */
+    .issues-stack { display: flex; flex-direction: column; gap: 16px; margin: 28px 0; }
+    .issue-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+    .issue-card:hover { border-color: var(--border-hover); }
+    .issue-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .issue-num {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .issue-num-1 { background: rgba(239,68,68,0.15); color: #f87171; }
+    .issue-num-2 { background: rgba(234,179,8,0.15); color: #facc15; }
+    .issue-num-3 { background: rgba(124,106,247,0.15); color: #a78bfa; }
+    .issue-num-4 { background: rgba(251,146,60,0.15); color: #fb923c; }
+    .issue-title { font-size: 14px; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .issue-chevron {
+      font-size: 11px; color: var(--text-muted);
+      transition: transform 0.25s;
+    }
+    .issue-card.open .issue-chevron { transform: rotate(180deg); }
+    .issue-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.2s;
+      padding: 0 18px;
+    }
+    .issue-card.open .issue-body { max-height: 400px; padding: 0 18px 18px; }
+    .issue-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-top: 4px;
+    }
+    .issue-col { background: var(--bg-surface); border-radius: 8px; padding: 12px 14px; }
+    .issue-col-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .issue-col-label.bad  { color: #f87171; }
+    .issue-col-label.good { color: #4ade80; }
+    .issue-col p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+    .issue-col code {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      background: rgba(79,143,230,0.1); color: var(--accent);
+      padding: 1px 6px; border-radius: 4px;
+    }
+
+    /* ── KEY LEARNINGS TABLE ── */
+    .learnings-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px; margin: 28px 0;
+    }
+    .learning-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px;
+      transition: all 0.25s;
+    }
+    .learning-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .learning-card-icon { font-size: 24px; margin-bottom: 10px; }
+    .learning-card-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .learning-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.65; }
+
+    /* ── BEFORE/AFTER ── */
+    .before-after {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 28px 0;
+    }
+    .ba-card { border-radius: var(--radius); padding: 20px 22px; }
+    .ba-before { background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); }
+    .ba-after  { background: rgba(34,197,94,0.05);  border: 1px solid rgba(34,197,94,0.2); }
+    .ba-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    }
+    .ba-before .ba-label { color: #f87171; }
+    .ba-after  .ba-label { color: #4ade80; }
+    .ba-item { font-size: 13px; color: var(--text-secondary); line-height: 1.7; display: flex; gap: 8px; margin-bottom: 6px; }
+    .ba-item::before { content: '→'; color: var(--text-muted); flex-shrink: 0; }
+
+    /* ── LAB IMAGE ── */
+    .lab-image-wrap {
+      margin: 32px 0; border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--border);
+    }
+    .lab-image-wrap img {
+      width: 100%; display: block;
+    }
+    .lab-image-caption {
+      background: var(--bg-card); padding: 10px 16px;
+      font-size: 12px; color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── NEXT STEPS ── */
+    .next-steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px; margin: 24px 0;
+    }
+    .next-step {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 16px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .next-step-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .next-step-text { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .next-step-text strong { color: var(--text-primary); display: block; margin-bottom: 2px; }
+
+    @media (max-width: 640px) {
+      .arch-grid { grid-template-columns: 1fr; gap: 12px; }
+      .arch-arrow { transform: rotate(90deg); padding: 8px 0; }
+      .before-after { grid-template-columns: 1fr; }
+      .issue-row { grid-template-columns: 1fr; }
+      .master-block { flex-direction: column; }
+      .tf-track { gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar scrolled">
+  <div class="nav-container">
+    <div class="logo"><a href="index.html" style="text-decoration:none;color:inherit">Shibu A</a> <span>(he/him)</span></div>
+    <div class="nav-right">
+      <a href="index.html#about">About</a>
+      <a href="index.html#skills">Skills</a>
+      <a href="index.html#Experiences">Experience</a>
+      <a href="index.html#certs">Certs</a>
+      <a href="index.html#blog">Blog</a>
+      <a href="index.html#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ══ BLOG POST ══ -->
+<main class="blog-main">
+
+
+  <!-- Header -->
+  <div class="blog-header">
+    <div class="blog-header-inner">
+      <a href="index.html#blog" class="blog-back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Portfolio</a>
+      <div class="blog-tags-row">
+        <span class="blog-tag">Home Lab</span>
+        <span class="blog-tag">Windows Server</span>
+        <span class="blog-tag">Networking</span>
+        <span class="blog-tag">DMZ</span>
+        <span class="blog-tag">RRAS</span>
+      </div>
+      <h1 class="blog-title">🔐 My "Secure" Network Wasn't Actually Secure</h1>
+      <p class="blog-subtitle">I built a DMZ lab to prove I understood network isolation. The website loaded without NAT, without port forwarding, without any rules. That moment of confusion taught me more than six months of reading ever did.</p>
+      <div class="blog-meta">
+        <img src="assets/img/blog-author.jpg" alt="Shibu A" class="blog-author-img">
+        <div>
+          <span class="blog-author-name">Shibu A</span>
+          <span class="blog-meta-sep">·</span>
+          <span class="blog-read-time"><i class="fa-regular fa-clock"></i> 9 min read</span>
+          <span class="blog-meta-sep">·</span>
+          <span class="blog-date">May 2025</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Article -->
+  <article class="blog-article">
+
+    <!-- PART 1 -->
+    <div class="blog-part-label">The Confidence Problem</div>
+    <h2 class="blog-section-title">🧠 I Thought I Already Knew This</h2>
+
+    <p>There's a specific kind of overconfidence that comes from reading too many diagrams. You look at the boxes, follow the arrows, nod along — <em>"yes, DMZ, isolated zone, NAT, port forwarding, got it"</em> — and somewhere along the way your brain files it under "understood."</p>
+
+    <p>I had that problem with network segmentation. I'd read about DMZs. I'd drawn the architecture on paper. I could explain it to someone else. So one weekend I thought: let me actually build it, just to <strong>confirm</strong> what I already know.</p>
+
+    <div class="blog-callout callout-warning">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>Spoiler:</strong> I did not confirm what I already knew. I found out what I didn't know — which was considerably more interesting.
+      </div>
+    </div>
+
+    <!-- PART 2 -->
+    <div class="blog-part-label">The Plan</div>
+    <h2 class="blog-section-title">🏗️ What I Was Building</h2>
+
+    <p>The objective was textbook DMZ stuff. Expose a web server to the outside world without letting the outside world anywhere near the internal network. Classic. Clean. Shouldn't be complicated.</p>
+
+    <p>One Windows Server to rule them all — acting as the backbone with RRAS, Active Directory, DNS, and DHCP all on one machine. Three network cards. Three completely separate worlds.</p>
+
+    <!-- Master server block -->
+    <div class="master-block">
+      <div class="master-icon">🖥️</div>
+      <div class="master-info">
+        <div class="master-name">Master Server — The Brain of the Lab</div>
+        <div class="master-services">
+          <span class="svc-tag">RRAS — Routing & Remote Access</span>
+          <span class="svc-tag">Active Directory</span>
+          <span class="svc-tag">DNS Server</span>
+          <span class="svc-tag">DHCP Server</span>
+        </div>
+        <div class="master-nics">
+          <span class="nic nic-int">NIC 1 — Internal &nbsp;192.168.10.10</span>
+          <span class="nic nic-dmz">NIC 2 — DMZ &nbsp;&nbsp;&nbsp;&nbsp;192.168.20.10</span>
+          <span class="nic nic-ext">NIC 3 — External &nbsp;192.168.230.10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture diagram -->
+    <div class="arch-diagram">
+      <div class="arch-title">📐 Lab Architecture — Three Isolated Zones</div>
+      <div class="arch-grid">
+        <div class="arch-zone zone-internal">
+          <div class="zone-icon">🖥️</div>
+          <div class="zone-name">Internal Network</div>
+          <div class="zone-subnet">192.168.10.0/24</div>
+          <div class="zone-device">
+            <strong>Windows Client</strong>
+            192.168.10.100 (DHCP)<br>
+            Private — no external access
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">RRAS<br>routes</div>
+        </div>
+
+        <div class="arch-zone zone-dmz">
+          <div class="zone-icon">🌐</div>
+          <div class="zone-name">DMZ Network</div>
+          <div class="zone-subnet">192.168.20.0/24</div>
+          <div class="zone-device">
+            <strong>Web Server (IIS)</strong>
+            192.168.20.20<br>
+            Exposed — controlled access only
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arch-arrow-line"></div>
+          <div class="arch-arrow-label">NAT &<br>Port Fwd</div>
+        </div>
+
+        <div class="arch-zone zone-external">
+          <div class="zone-icon">☁️</div>
+          <div class="zone-name">External Network</div>
+          <div class="zone-subnet">192.168.230.0/24</div>
+          <div class="zone-device">
+            <strong>NAT IP: 192.168.230.10</strong>
+            "The Internet"<br>
+            Simulated external user
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p>The web server sits in the DMZ at <span class="ip">192.168.20.20</span>, running IIS. External users hit <span class="ip">192.168.230.10</span> — RRAS picks it up, port-forwards TCP 80 into the DMZ, DMZ server responds. The internal network at <span class="ip">192.168.10.0/24</span> never enters the picture. Clean isolation.</p>
+
+    <p>That was the plan, anyway.</p>
+
+    <!-- PART 3 -->
+    <div class="blog-part-label">Something's Wrong</div>
+    <h2 class="blog-section-title">😐 The Website Loaded. That Was the Problem.</h2>
+
+    <p>I set up RRAS. Configured the three NICs. Installed IIS on the DMZ server. Set up routing. Felt pretty good about the whole thing.</p>
+
+    <p>Then I opened a browser on the external machine and navigated to <span class="ip">192.168.230.10</span>.</p>
+
+    <div class="blog-callout callout-danger">
+      <span class="callout-icon">💀</span>
+      <div>
+        The website loaded.<br><br>
+        No port forwarding configured. No NAT rules. No explicit routing to the DMZ.<br><br>
+        <strong>Still worked.</strong>
+      </div>
+    </div>
+
+    <p>Most people at this point would think <em>"great, it works!"</em> and move on. I almost did. But something felt wrong. If the DMZ is supposed to be isolated, and I hadn't actually built the isolation yet — why was the traffic getting through?</p>
+
+    <p>Either my DMZ was magic, or I was testing something completely different from what I thought I was testing.</p>
+
+    <!-- PART 4 -->
+    <div class="blog-part-label">The Real Problem</div>
+    <h2 class="blog-section-title">🔍 Traffic Was Never Reaching the DMZ</h2>
+
+    <p>I started tracing the actual packet path. Where was this traffic actually going when it hit <span class="ip">192.168.230.10</span>?</p>
+
+    <div class="blog-callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>The answer:</strong> Nowhere near the DMZ. The request was hitting RRAS — which had IIS installed on it — and RRAS was serving the page <em>locally</em>. The DMZ server was completely bypassed. The whole time I thought I was testing a DMZ architecture, I was just talking to the router.
+      </div>
+    </div>
+
+    <p>IIS was installed on the master server — the same machine running RRAS. So when external traffic arrived at <span class="ip">192.168.230.10</span>, the OS went: <em>"Oh, port 80? I have IIS running right here, I'll handle that myself."</em> Never forwarded. Never routed. Just… answered locally.</p>
+
+    <!-- traffic flow comparison -->
+    <div class="traffic-flow">
+      <div class="tf-title">📦 What I thought vs what was actually happening</div>
+
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;margin-top:0;">Expected flow:</p>
+      <div class="tf-track">
+        <div class="tf-node">
+          <div class="tf-node-icon">💻</div>
+          <div class="tf-node-label">External<br>User</div>
+          <div class="tf-node-ip">192.168.230.x</div>
+        </div>
+        <div class="tf-connector">
+          <div class="tf-line"></div>
+          <div class="tf-step-badge">1</div>
+          <div class="tf-step-label">HTTP :80</div>
+        </div>
+        <div class="tf-node">
+          <div class="tf-node-icon">🔀</div>
+          <div class="tf-node-label">RRAS<br>(NAT/FWD)</div>
+          <div class="tf-node-ip">192.168.230.10</div>
+        </div>
+        <div class="tf-connector">
+          <div class="tf-line"></div>
+          <div class="tf-step-badge">2</div>
+          <div class="tf-step-label">Fwd to DMZ</div>
+        </div>
+        <div class="tf-node">
+          <div class="tf-node-icon">🌐</div>
+          <div class="tf-node-label">DMZ Web<br>Server</div>
+          <div class="tf-node-ip">192.168.20.20</div>
+        </div>
+        <div class="tf-connector">
+          <div class="tf-line tf-line-return"></div>
+          <div class="tf-step-badge" style="background:#4ade80">3</div>
+          <div class="tf-step-label">Response</div>
+        </div>
+        <div class="tf-node">
+          <div class="tf-node-icon">💻</div>
+          <div class="tf-node-label">External<br>User</div>
+        </div>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;margin-top:20px;">What was actually happening:</p>
+      <div class="tf-track">
+        <div class="tf-node">
+          <div class="tf-node-icon">💻</div>
+          <div class="tf-node-label">External<br>User</div>
+          <div class="tf-node-ip">192.168.230.x</div>
+        </div>
+        <div class="tf-connector">
+          <div class="tf-line"></div>
+          <div class="tf-step-badge" style="background:#f87171">1</div>
+          <div class="tf-step-label">HTTP :80</div>
+        </div>
+        <div class="tf-node">
+          <div class="tf-node-icon" style="border-color:rgba(239,68,68,0.4)">🖥️</div>
+          <div class="tf-node-label">RRAS serves<br>IIS locally</div>
+          <div class="tf-node-ip" style="color:#f87171">192.168.230.10</div>
+        </div>
+        <div class="tf-connector">
+          <div class="tf-line tf-line-return"></div>
+          <div class="tf-step-badge" style="background:#f87171">2</div>
+          <div class="tf-step-label">Local response</div>
+        </div>
+        <div class="tf-node">
+          <div class="tf-node-icon">💻</div>
+          <div class="tf-node-label">External<br>User</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#f87171;margin-top:12px;margin-bottom:0;">⚠️ The DMZ server was never involved. At all.</p>
+    </div>
+
+    <p>Once I understood what was happening, the fix was obvious: uninstall IIS from RRAS completely, keep it strictly on the DMZ server, then build the actual port forwarding rules. After that, direct access to <span class="ip">192.168.20.20</span> was blocked — and access through <span class="ip">192.168.230.10</span> via NAT actually worked properly for the first time.</p>
+
+    <p>Real isolation. Finally.</p>
+
+    <!-- Lab architecture image -->
+    <div class="lab-image-wrap">
+      <img src="assets/img/dmz-lab-architecture.png" alt="DMZ Lab Architecture — Windows Server RRAS NAT DMZ">
+      <div class="lab-image-caption">📐 Full lab architecture diagram — three isolated network zones with RRAS handling NAT and port forwarding</div>
+    </div>
+
+    <!-- PART 5 -->
+    <div class="blog-part-label">More Problems</div>
+    <h2 class="blog-section-title">⚠️ Of Course, That Wasn't the Only Issue</h2>
+
+    <p>Fixing the IIS problem was just the beginning. Because the moment I had real isolation working, three more things broke. Which, honestly, is how you know a lab is actually teaching you something.</p>
+
+    <div class="issues-stack">
+
+      <div class="issue-card" id="issue1">
+        <div class="issue-header" onclick="toggleIssue('issue1')">
+          <div class="issue-num issue-num-1">01</div>
+          <div class="issue-title">IIS on the wrong server — the one that started it all</div>
+          <div class="issue-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="issue-body">
+          <div class="issue-row">
+            <div class="issue-col">
+              <div class="issue-col-label bad">❌ What happened</div>
+              <p>Website loaded without any NAT or forwarding rules. Traffic appeared to work perfectly. The DMZ seemed operational. It wasn't.</p>
+            </div>
+            <div class="issue-col">
+              <div class="issue-col-label good">✅ Root cause & fix</div>
+              <p>IIS was running on the RRAS server itself — <code>192.168.230.10</code>. OS served the request locally, DMZ was never contacted. Fixed by moving IIS exclusively to <code>192.168.20.20</code> and configuring actual port forwarding rules.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="issue-card" id="issue2">
+        <div class="issue-header" onclick="toggleIssue('issue2')">
+          <div class="issue-num issue-num-2">02</div>
+          <div class="issue-title">DHCP gateway misconfiguration — clients couldn't route anywhere</div>
+          <div class="issue-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="issue-body">
+          <div class="issue-row">
+            <div class="issue-col">
+              <div class="issue-col-label bad">❌ What happened</div>
+              <p>Internal clients got IP addresses from DHCP fine, but couldn't reach external networks. Routing felt broken even though RRAS was configured correctly.</p>
+            </div>
+            <div class="issue-col">
+              <div class="issue-col-label good">✅ Root cause & fix</div>
+              <p>The DHCP scope was handing out the wrong gateway. Clients had no idea how to reach RRAS. Fixed by setting the default gateway in the DHCP scope to point to the RRAS internal interface: <code>192.168.10.10</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="issue-card" id="issue3">
+        <div class="issue-header" onclick="toggleIssue('issue3')">
+          <div class="issue-num issue-num-3">03</div>
+          <div class="issue-title">Duplicate IP — APIPA appeared out of nowhere</div>
+          <div class="issue-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="issue-body">
+          <div class="issue-row">
+            <div class="issue-col">
+              <div class="issue-col-label bad">❌ What happened</div>
+              <p>A machine suddenly showed <code>169.x.x.x</code> — APIPA. Couldn't communicate with anything. Looked like a DHCP failure but DHCP was running fine.</p>
+            </div>
+            <div class="issue-col">
+              <div class="issue-col-label good">✅ Root cause & fix</div>
+              <p>IP conflict. Two devices had the same IP. Windows detected the conflict, released the address, and fell back to APIPA since DHCP didn't respond in time. Fixed by assigning a unique static IP to the conflicting device.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="issue-card" id="issue4">
+        <div class="issue-header" onclick="toggleIssue('issue4')">
+          <div class="issue-num issue-num-4">04</div>
+          <div class="issue-title">RRAS ≠ firewall — the assumption that changed everything</div>
+          <div class="issue-chevron"><i class="fa-solid fa-chevron-down"></i></div>
+        </div>
+        <div class="issue-body">
+          <div class="issue-row">
+            <div class="issue-col">
+              <div class="issue-col-label bad">❌ The assumption</div>
+              <p>I expected RRAS to enforce security between the networks. Block unwanted traffic between zones. Act as a gatekeeper at the segmentation boundary.</p>
+            </div>
+            <div class="issue-col">
+              <div class="issue-col-label good">✅ The reality</div>
+              <p>RRAS routes traffic — it doesn't filter it. Transit traffic between zones passes through without inspection. Security controls must live at the <strong>endpoints</strong> (Windows Firewall on each machine) or on a dedicated firewall appliance sitting between zones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PART 6 -->
+    <div class="blog-part-label">What Changed</div>
+    <h2 class="blog-section-title">🔄 Before and After This Lab</h2>
+
+    <p>The difference between reading about something and building it — then watching it break — is the difference between recognising a word and knowing its weight.</p>
+
+    <div class="before-after">
+      <div class="ba-card ba-before">
+        <div class="ba-label">😶 Before the lab</div>
+        <div class="ba-item">I "understood" DMZ from diagrams</div>
+        <div class="ba-item">Assumed NAT = security</div>
+        <div class="ba-item">Thought RRAS filtered traffic</div>
+        <div class="ba-item">Never questioned "it works"</div>
+        <div class="ba-item">Theory lived in my head, untested</div>
+      </div>
+      <div class="ba-card ba-after">
+        <div class="ba-label">💡 After the lab</div>
+        <div class="ba-item">I know exactly what isolation actually means</div>
+        <div class="ba-item">NAT controls access, not security</div>
+        <div class="ba-item">RRAS routes — firewall is a separate concern</div>
+        <div class="ba-item">"It works" is a question, not an answer</div>
+        <div class="ba-item">Broken things teach more than working ones</div>
+      </div>
+    </div>
+
+    <!-- Key learnings -->
+    <h2 class="blog-section-title">🧠 The Four Things That Actually Stuck</h2>
+
+    <div class="learnings-grid">
+      <div class="learning-card">
+        <div class="learning-card-icon">🗺️</div>
+        <div class="learning-card-title">Network segmentation is deliberate</div>
+        <div class="learning-card-desc">Subnets don't automatically isolate anything. You define what can reach what — explicitly. If you don't, RRAS will happily route everything everywhere.</div>
+      </div>
+      <div class="learning-card">
+        <div class="learning-card-icon">🎭</div>
+        <div class="learning-card-title">NAT hides, it doesn't protect</div>
+        <div class="learning-card-desc">NAT makes services reachable through a single IP. Port forwarding controls what's exposed. Neither of these is a firewall. Don't confuse exposure with security.</div>
+      </div>
+      <div class="learning-card">
+        <div class="learning-card-icon">📦</div>
+        <div class="learning-card-title">Services go exactly where you put them</div>
+        <div class="learning-card-desc">If IIS is on the router, the router serves pages. The architecture you draw only works if the services actually live where you put them in the diagram.</div>
+      </div>
+      <div class="learning-card">
+        <div class="learning-card-icon">🛡️</div>
+        <div class="learning-card-title">RRAS is a road, not a bouncer</div>
+        <div class="learning-card-desc">Routing moves packets. Filtering requires explicit rules at the endpoints. If you want a zone boundary to mean something, you need endpoint firewalls or a dedicated appliance.</div>
+      </div>
+    </div>
+
+    <!-- PART 7 -->
+    <div class="blog-part-label">What's Next</div>
+    <h2 class="blog-section-title">🚀 Where This Lab Goes From Here</h2>
+
+    <p>This setup works — properly now. But it's a foundation, not a finish line. There's a lot more to add before it resembles anything close to a real production environment.</p>
+
+    <div class="next-steps">
+      <div class="next-step">
+        <div class="next-step-icon">🔥</div>
+        <div class="next-step-text"><strong>Zone firewall rules</strong>Explicit allow/deny between Internal ↔ DMZ ↔ External zones at the endpoint level</div>
+      </div>
+      <div class="next-step">
+        <div class="next-step-icon">📊</div>
+        <div class="next-step-text"><strong>Traffic monitoring</strong>Log inter-zone traffic so I can actually see what's moving where instead of just assuming</div>
+      </div>
+      <div class="next-step">
+        <div class="next-step-icon">⚔️</div>
+        <div class="next-step-text"><strong>Attack simulations</strong>Try lateral movement from DMZ into Internal — then see if the controls actually stop it</div>
+      </div>
+      <div class="next-step">
+        <div class="next-step-icon">☁️</div>
+        <div class="next-step-text"><strong>Hybrid cloud extension</strong>Extend this architecture into a cloud VPC — same principles, different tools</div>
+      </div>
+    </div>
+
+    <!-- Final note -->
+    <div class="blog-final-note">
+      <p>Reading about networking gives you vocabulary. Building a broken network gives you understanding. They feel like the same thing until you try the second one.</p>
+      <p>Still exploring. Still breaking things. Still learning — just now with a much healthier distrust of "it works."</p>
+    </div>
+
+    <!-- Author card -->
+    <div class="blog-author-card">
+      <img src="assets/img/blog-author.jpg" alt="Shibu A" class="bac-img">
+      <div class="bac-info">
+        <div class="bac-name">Shibu A</div>
+        <div class="bac-bio">Support Engineer & Infrastructure Admin. I break things in my lab so they don't break in production. Based in Doha, Qatar.</div>
+        <div class="bac-links">
+          <a href="https://linkedin.com/in/shibu-dhas" target="_blank"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+          <a href="https://x.com/shibudhas3" target="_blank"><i class="fa-brands fa-x-twitter"></i> Twitter</a>
+        </div>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- ══ COMMENTS ══ -->
+  <section class="comments-section">
+    <div class="comments-inner">
+      <h3 class="comments-title">💬 Discussion</h3>
+      <p class="comments-subtitle">Built a similar lab? Hit the same RRAS wall? Drop it below.</p>
+
+      <div class="comment-form-wrap">
+        <div class="cf-avatar">👤</div>
+        <div class="cf-fields">
+          <div class="cf-name-row">
+            <input type="text" id="commenterName" placeholder="Your name" class="cf-input cf-name" maxlength="40">
+            <input type="text" id="commenterRole" placeholder="Your role (optional)" class="cf-input cf-role" maxlength="60">
+          </div>
+          <textarea id="commentText" class="cf-textarea" placeholder="Share your lab experience, question, or add something I missed..." rows="4" maxlength="1200"></textarea>
+          <div class="cf-footer">
+            <span class="cf-char-count" id="charCount">0 / 1200</span>
+            <button class="cf-submit" onclick="submitComment()">Post Comment <i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="blog-script.js"></script>
+<script>
+  // Issue accordion
+  function toggleIssue(id) {
+    const card = document.getElementById(id);
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('open'));
+    if (!isOpen) card.classList.add('open');
+  }
+
+  // Open first issue by default
+  document.getElementById('issue1').classList.add('open');
+
+  // Navbar scroll
+  window.addEventListener('scroll', () => {
+    document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ══ SEO META TAGS ══ -->
+  <title>Shibu A | Infrastructure & Backup Support Engineer | Doha, Qatar</title>
+  <meta name="description" content="Shibu A — Senior Support Engineer with 5+ years managing enterprise IT infrastructure, Dell EMC NetWorker, NetApp ONTAP, and Linux systems. Based in Doha, Qatar. Open to new opportunities.">
+  <meta name="keywords" content="Dell EMC NetWorker, NetApp ONTAP, Backup Engineer, Infrastructure Engineer, System Administrator, Support Engineer, Doha Qatar, Data Domain, LTO Tape, Linux, VMware">
+  <meta name="author" content="Shibu A">
+  <meta property="og:title" content="Shibu A | Infrastructure & Backup Support Engineer">
+  <meta property="og:description" content="5+ years managing enterprise backup, storage & Linux infrastructure. Dell EMC NetWorker specialist. Based in Doha, Qatar.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dhasli.github.io/Portfolio/">
+  <meta name="robots" content="index, follow">
+
+  <link rel="stylesheet" href="Style.css">
+  <link rel="stylesheet" href="blog-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── AVAILABILITY BANNER ── */
+    .avail-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      background: linear-gradient(90deg, #0a2540, #0f3460);
+      border-bottom: 1px solid rgba(79,143,230,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 8px 20px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      transition: transform 0.3s ease;
+    }
+    .avail-banner.hidden { transform: translateY(-100%); }
+    .avail-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.7);
+      animation: pulse-dot 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse-dot {
+      0%,100% { box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+      50%      { box-shadow: 0 0 14px rgba(34,197,94,1); }
+    }
+    .avail-text strong { color: #e8edf5; }
+    .avail-text a { color: var(--accent); text-decoration: none; margin-left: 6px; }
+    .avail-text a:hover { text-decoration: underline; }
+    .avail-close {
+      margin-left: auto; background: none; border: none;
+      color: var(--text-muted); font-size: 14px; cursor: pointer;
+      padding: 2px 6px; border-radius: 4px; transition: color 0.2s;
+    }
+    .avail-close:hover { color: var(--text-primary); }
+    .navbar { top: 37px; }
+    .navbar.banner-gone { top: 0; }
+
+    /* ── HERO TAGLINE & STATS ── */
+    .hero-tagline {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+    .hero-role {
+      font-size: 17px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: -10px;
+      margin-bottom: 0;
+      letter-spacing: 0.2px;
+    }
+    .hero-role span { color: var(--accent); font-weight: 600; }
+
+    .hero-stats {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .hstat { text-align: center; }
+    .hstat-num {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: block;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .hstat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.3px; }
+
+    /* ── CERTIFICATIONS ── */
+    #certs { padding: 80px 60px; }
+    .certs-grid {
+      max-width: 960px;
+      margin: 50px auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .cert-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.25s ease;
+    }
+    .cert-card:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+    .cert-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(79,143,230,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .cert-body { flex: 1; }
+    .cert-name { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .cert-issuer { font-size: 11px; color: var(--text-muted); }
+    .cert-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .badge-verified { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .badge-training { background: rgba(79,143,230,0.12); color: var(--accent); border: 1px solid rgba(79,143,230,0.2); }
+    .badge-learning { background: rgba(124,106,247,0.12); color: #a78bfa; border: 1px solid rgba(124,106,247,0.2); }
+
+    /* ── CONTACT FORM ── */
+    .contact-form-wrap {
+      max-width: 560px;
+      margin: 40px auto 0;
+    }
+    .cf-row { display: flex; gap: 12px; margin-bottom: 12px; }
+    .cf-field { flex: 1; }
+    .cf-field label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .cf-field input, .cf-field textarea, .cf-field select {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .cf-field input:focus, .cf-field textarea:focus {
+      border-color: var(--border-hover);
+    }
+    .cf-field input::placeholder, .cf-field textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .cf-field textarea { resize: vertical; min-height: 110px; }
+    .cf-submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .cf-submit-btn:hover { background: #3a7cd4; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(79,143,230,0.3); }
+    .cf-success {
+      text-align: center;
+      padding: 20px;
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 10px;
+      color: #4ade80;
+      font-size: 14px;
+      display: none;
+    }
+
+    /* ── CURRENTLY LEARNING ── */
+    .learning-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding: 12px 20px;
+      background: rgba(124,106,247,0.05);
+      border: 1px solid rgba(124,106,247,0.15);
+      border-radius: 10px;
+    }
+    .learning-label {
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 18px;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .learning-tag {
+      font-size: 12px;
+      background: rgba(124,106,247,0.1);
+      color: #c4b5fd;
+      border: 1px solid rgba(124,106,247,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 900px) {
+      #certs { padding: 60px 24px; }
+      .cf-row { flex-direction: column; }
+      .avail-banner { font-size: 11px; }
+      .hero-stats { gap: 18px; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ AVAILABILITY BANNER ══ -->
+<div class="avail-banner" id="availBanner">
+  <div class="avail-dot"></div>
+  <span class="avail-text">
+    <strong>Open to new opportunities</strong> — Infrastructure · Backup & Storage · System Administration ·
+    <a href="https://linkedin.com/in/shibu-dhas" target="_blank">Connect on LinkedIn →</a>
+  </span>
+  <button class="avail-close" onclick="closeBanner()" aria-label="Close">✕</button>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">Shibu A <span>(He/Him)</span></div>
+    <div class="nav-right">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#Experiences">Experience</a>
+      <a href="#certs">Certs</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="profile-area">
+      <div class="profile">
+        <img src="assets/img/blog-author.jpg" alt="Shibu A — Infrastructure & Support Engineer">
+      </div>
+      <h1>Hello, I'm Shibu!</h1>
+      <p class="hero-role">
+        Infrastructure & System Engineer
+        <span>·</span> Doha, Qatar
+      </p>
+    </div>
+
+    <div class="hero-text-area">
+      <div class="connect">
+        <p class="hero-tagline">Let's Connect</p>
+        <div class="social-icons">
+          <a href="https://linkedin.com/in/shibu-dhas" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="https://wa.me/+97471587959" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://x.com/shibudhas3" target="_blank" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+      </div>
+
+      <!-- Impact stats -->
+      <div class="hero-stats">
+        <div class="hstat">
+          <span class="hstat-num" data-target="5">0</span>
+          <span class="hstat-label">Years Experience</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-num" data-target="1000">0</span>
+          <span class="hstat-label">Cases Resolved</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-num" data-target="50">0</span>
+          <span class="hstat-label">Appreciations</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-num" data-target="3">0</span>
+          <span class="hstat-label">Companies</span>
+        </div>
+      </div>
+
+      <a href="cv.pdf" class="btn-download" download>
+        Download CV <i class="fa-solid fa-download"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ABOUT ══ -->
+<section id="about" class="reveal">
+  <div class="about-container">
+    <div class="section-heading-wrap" style="text-align:left">
+      <span class="section-label">About Me</span>
+      <h2 class="section-title">Who Am I?</h2>
+    </div>
+    <p>
+      I'm a Support Engineer and Infrastructure Administrator with over 5 years of hands-on experience managing enterprise IT environments, including Linux systems, storage infrastructure, and backup solutions.
+    </p>
+    <p>
+      My work focuses on diagnosing and resolving critical production issues — from backup failures and system outages to complex permission and configuration problems. I've worked extensively with tools like Dell NetWorker and handled real-time incident troubleshooting in business-critical environments, including banking and insurance sectors. I specialize in solving complex production issues that others escalate.
+    </p>
+    <p>
+      Beyond day-to-day support, I build and test lab environments to validate fixes, explore edge cases, and improve system reliability. I approach problems methodically — analyzing logs, identifying root causes, and implementing long-term solutions.
+    </p>
+    <p class="strong-line">
+      I don't just resolve tickets — I focus on stability, performance, and long-term reliability.
+    </p>
+
+    <!-- Currently learning strip -->
+    <div class="learning-strip">
+      <span class="learning-label">⚡ Currently exploring</span>
+      <span class="learning-tag">CCNA</span>
+      <span class="learning-tag">Azure</span>
+      <span class="learning-tag">Git</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SKILLS ══ -->
+<section id="skills" class="reveal">
+  <div class="section-heading-wrap">
+    <span class="section-label">Expertise</span>
+    <h2 class="section-title">Here's what I'm good at</h2>
+  </div>
+
+  <div class="skills-grid">
+    <div class="skill-box" data-skill="infra">
+      <div class="skill-pill"><span class="pill-icon">🖥️</span><span class="skill-title">IT Infrastructure & Support</span></div>
+      <div class="skill-overlay-text">Explore →</div>
+    </div>
+    <div class="skill-box" data-skill="systems">
+      <div class="skill-pill"><span class="pill-icon">⚙️</span><span class="skill-title">Systems Administration</span></div>
+      <div class="skill-overlay-text">Explore →</div>
+    </div>
+    <div class="skill-box" data-skill="backup">
+      <div class="skill-pill"><span class="pill-icon">💾</span><span class="skill-title">Backup & Storage</span></div>
+      <div class="skill-overlay-text">Explore →</div>
+    </div>
+    <div class="skill-box" data-skill="virtual">
+      <div class="skill-pill"><span class="pill-icon">☁️</span><span class="skill-title">Virtualization & Cloud</span></div>
+      <div class="skill-overlay-text">Explore →</div>
+    </div>
+    <div class="skill-box" data-skill="network">
+      <div class="skill-pill"><span class="pill-icon">🔗</span><span class="skill-title">Networking</span></div>
+      <div class="skill-overlay-text">Explore →</div>
+    </div>
+  </div>
+
+  <!-- Inline skill detail panel -->
+  <div class="skill-detail-panel" id="skillDetailPanel">
+    <div class="skill-panel-header">
+      <span class="skill-panel-icon" id="skillPanelIcon"></span>
+      <h3 class="skill-panel-title" id="skillPanelTitle"></h3>
+      <button class="skill-panel-close" onclick="closeSkillPanel()">✕</button>
+    </div>
+    <div class="skill-panel-sections" id="skillPanelSections"></div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="Experiences" class="reveal">
+  <div class="section-heading-wrap">
+    <span class="section-label">Career</span>
+    <h2 class="section-title">Where I've Worked</h2>
+  </div>
+
+  <div class="exp-timeline">
+    <!-- Sutherland -->
+    <div class="exp-module" data-exp="sutherland">
+      <div class="exp-module-side">
+        <div class="exp-dot sutherland-dot"></div>
+        <div class="exp-line"></div>
+      </div>
+      <div class="exp-module-card sutherland-card">
+        <div class="exp-module-top">
+          <div class="exp-module-logo"><img src="assets/img/sutherland.png" alt="Sutherland Global Services"></div>
+          <div class="exp-module-info">
+            <h3 class="exp-company">Sutherland Global Services</h3>
+            <div class="exp-client-row">
+              <span class="exp-employer-label">Client</span>
+              <span class="exp-arrow">→</span>
+              <span class="exp-client-tag sutherland-tag">NetApp Inc</span>
+              <span class="exp-client-desc">Storage & Cloud Data Management</span>
+            </div>
+          </div>
+          <div class="exp-module-meta">
+            <span class="exp-role-badge">Sr. Assoc — Infrastructure</span>
+            <span class="exp-period">Dec 2024 – Feb 2026</span>
+          </div>
+        </div>
+        <p class="exp-module-desc">Maintained high-capacity NetApp storage clusters with 99.9% uptime through proactive hardware diagnostics. Handled 500+ cases with zero dissatisfaction in one year.</p>
+        <div class="exp-hover-hint">Click to view full details →</div>
+      </div>
+    </div>
+
+    <!-- Wipro -->
+    <div class="exp-module" data-exp="wipro">
+      <div class="exp-module-side">
+        <div class="exp-dot wipro-dot"></div>
+        <div class="exp-line"></div>
+      </div>
+      <div class="exp-module-card wipro-card">
+        <div class="exp-module-top">
+          <div class="exp-module-logo"><img src="assets/img/wipro.png" alt="Wipro Limited"></div>
+          <div class="exp-module-info">
+            <h3 class="exp-company">Wipro Limited</h3>
+            <div class="exp-client-row">
+              <span class="exp-employer-label">Client</span>
+              <span class="exp-arrow">→</span>
+              <span class="exp-client-tag wipro-tag">Dell EMC</span>
+              <span class="exp-client-desc">Enterprise Backup & Data Protection</span>
+            </div>
+          </div>
+          <div class="exp-module-meta">
+            <span class="exp-role-badge">Senior System Administrator</span>
+            <span class="exp-period">Sep 2022 – Nov 2024</span>
+          </div>
+        </div>
+        <p class="exp-module-desc">Engineered data protection strategies using Dell EMC NetWorker, achieving 100% CSAT. Recovered 15TB of critical banking data using UASM after a compliance incident. Earned 50+ customer appreciations.</p>
+        <div class="exp-hover-hint">Click to view full details →</div>
+      </div>
+    </div>
+
+    <!-- CTAS -->
+    <div class="exp-module" data-exp="ctas">
+      <div class="exp-module-side">
+        <div class="exp-dot ctas-dot"></div>
+      </div>
+      <div class="exp-module-card ctas-card">
+        <div class="exp-module-top">
+          <div class="exp-module-logo"><img src="assets/img/ctas.jpg" alt="CTAS Pvt Ltd"></div>
+          <div class="exp-module-info">
+            <h3 class="exp-company">CTAS Pvt Ltd</h3>
+            <div class="exp-client-row">
+              <span class="exp-employer-label">Client</span>
+              <span class="exp-arrow">→</span>
+              <span class="exp-client-tag ctas-tag">Internal IT</span>
+              <span class="exp-client-desc">Enterprise Server & Platform Administration</span>
+            </div>
+          </div>
+          <div class="exp-module-meta">
+            <span class="exp-role-badge">System Administrator</span>
+            <span class="exp-period">Oct 2020 – Sep 2022</span>
+          </div>
+        </div>
+        <p class="exp-module-desc">Managed 150+ Linux & Windows servers at 99.9% uptime for 500+ users. Reduced recurring incidents by 25% through root-cause analysis. Maintained 95%+ SLA compliance.</p>
+        <div class="exp-hover-hint">Click to view full details →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CERTIFICATIONS ══ -->
+<section id="certs" class="reveal">
+  <div class="section-heading-wrap">
+    <span class="section-label">Credentials</span>
+    <h2 class="section-title">Certifications & Training</h2>
+  </div>
+
+  <div class="certs-grid">
+    <div class="cert-card">
+      <div class="cert-icon">🎓</div>
+      <div class="cert-body">
+        <div class="cert-name">SSRT — Storage System Recovery & Troubleshooting</div>
+        <div class="cert-issuer">NetApp · Sutherland Global Services</div>
+      </div>
+      <span class="cert-badge badge-verified">Verified</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🏅</div>
+      <div class="cert-body">
+        <div class="cert-name">Dell EMC NetWorker — Advanced Administration</div>
+        <div class="cert-issuer">Dell EMC · Wipro Limited (Internal Certification)</div>
+      </div>
+      <span class="cert-badge badge-verified">Verified</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🏆</div>
+      <div class="cert-body">
+        <div class="cert-name">Wipro Excellence Awards (×3)</div>
+        <div class="cert-issuer">Wipro Limited — Dedication & Outstanding Performance</div>
+      </div>
+      <span class="cert-badge badge-verified">Awarded</span>
+    </div>
+<div class="cert-card">
+  <div class="cert-icon">🎓</div>
+  <div class="cert-body">
+    <div class="cert-name">Diploma in Computer Hardware Maintenance</div>
+    <div class="cert-issuer">
+      Genius Softwares & Computer Education Pvt. Ltd. · 2014
+    </div>
+  </div>
+  <span class="cert-badge badge-verified">Certified</span>
+</div>
+
+    <div class="cert-card">
+  <div class="cert-icon">🌐</div>
+  <div class="cert-body">
+    <div class="cert-name">Cisco Certified Network Associate (CCNA)</div>
+    <div class="cert-issuer">Cisco Systems</div>
+  </div>
+      <span class="cert-badge badge-learning">In Progress</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">🔧</div>
+      <div class="cert-body">
+        <div class="cert-name">VMware vSphere: Install, Configure, Manage</div>
+        <div class="cert-issuer">VMware — Self-study + Lab environment</div>
+      </div>
+      <span class="cert-badge badge-training">Lab-verified</span>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon">📚</div>
+      <div class="cert-body">
+        <div class="cert-name">Linux System Administration (RHEL / CentOS)</div>
+        <div class="cert-issuer">Self-study + Production experience — 5 years</div>
+      </div>
+      <span class="cert-badge badge-training">Production-verified</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BLOG ══ -->
+<section id="blog" class="reveal">
+  <div class="section-heading-wrap">
+    <span class="section-label">Writing</span>
+    <h2 class="section-title">From the War Room</h2>
+  </div>
+
+  <div class="blog-cards-grid">
+    <a href="blog-16tb.html" class="blog-card">
+      <div class="blog-card-banner"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-tags">
+          <span class="blog-card-tag">NetWorker</span>
+          <span class="blog-card-tag">RCA</span>
+          <span class="blog-card-tag">War Story</span>
+        </div>
+        <div class="blog-card-title">💀 The Day 16TB Vanished — And Everyone Looked at Me</div>
+        <div class="blog-card-excerpt">A banking client. 16TB of backup data gone — not failed, not corrupted, just missing. A tape that was never supposed to move, had moved. One wrong dropdown. 45 days of investigation. Here's how we found out what really happened.</div>
+        <div class="blog-card-footer">
+          <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 12 min read <span>·</span> May 2025</div>
+          <div class="blog-card-read">Read post <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </a>
+
+<a href="blog-dmz-lab.html" class="blog-card">
+  <div class="blog-card-banner" style="background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+  <div class="blog-card-body">
+    <div class="blog-card-tags">
+      <span class="blog-card-tag" style="background:rgba(34,197,94,0.1);color:#4ade80;">Home Lab</span>
+      <span class="blog-card-tag" style="background:rgba(34,197,94,0.1);color:#4ade80;">Windows Server</span>
+      <span class="blog-card-tag" style="background:rgba(34,197,94,0.1);color:#4ade80;">Networking</span>
+    </div>
+    <div class="blog-card-title">🔐 My "Secure" Network Wasn't Actually Secure</div>
+    <div class="blog-card-excerpt">I built a DMZ lab to prove I understood network isolation. The website loaded without NAT, without port forwarding, without any rules. That moment of confusion taught me more than six months of reading ever did.</div>
+    <div class="blog-card-footer">
+      <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 9 min read <span>·</span> May 2025</div>
+      <div class="blog-card-read">Read post <i class="fa-solid fa-arrow-right"></i></div>
+    </div>
+  </div>
+</a>
+
+<!-- Coming soon card -->
+<div class="blog-card" style="opacity:0.5;cursor:default;pointer-events:none;position:relative;">
+  <div class="blog-card-banner" style="background:linear-gradient(90deg,#ef4444,#f97316);"></div>
+  <div class="blog-card-body">
+    
+    <div class="blog-card-tags">
+      <span class="blog-card-tag" style="background:rgba(239,68,68,0.12);color:#f87171;">Data Domain</span>
+      <span class="blog-card-tag" style="background:rgba(239,68,68,0.12);color:#f87171;">NetWorker</span>
+      <span class="blog-card-tag" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">Coming Soon</span>
+    </div>
+
+    <div class="blog-card-title">
+      💣 The Day 1.7PB Disappeared — A Data Domain Misstep
+    </div>
+
+    <div class="blog-card-excerpt">
+      A single decision — unmounting a Data Domain from a production NetWorker server and attaching it to a test environment — led to a catastrophic 1.7PB data loss. Here’s what actually happened, and why one wrong move can wipe out everything.
+    </div>
+
+    <div class="blog-card-footer">
+      <div class="blog-card-meta">
+        <i class="fa-regular fa-clock"></i> ~12 min read · Coming Soon
+      </div>
+    </div>
+
+  </div>
+</div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact" class="reveal">
+  <div class="section-heading-wrap">
+    <span class="section-label">Contact</span>
+    <h2 class="section-title">How to find me</h2>
+  </div>
+
+  <section class="contact-grid-section">
+    <div class="grid-container">
+      <div class="contact-box reveal reveal-delay-1">
+        <div class="icon-circle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </div>
+        <div class="box-content"><h4>Call</h4><p>+974 71587959</p></div>
+      </div>
+      <div class="contact-box reveal reveal-delay-2">
+        <div class="icon-circle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </div>
+        <div class="box-content"><h4>Email</h4><p>shibudhaslove@gmail.com</p></div>
+      </div>
+      <div class="contact-box reveal reveal-delay-3">
+        <div class="icon-circle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        </div>
+        <div class="box-content"><h4>Location</h4><p>Doha, Qatar</p></div>
+      </div>
+      <div class="social-box reveal reveal-delay-3">
+        <h4>Connect With Me</h4>
+        <div class="social-links">
+          <a href="https://linkedin.com/in/shibu-dhas" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="https://wa.me/+97471587959" target="_blank" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://x.com/shibudhas3" target="_blank" title="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form -->
+  <div class="contact-form-wrap reveal">
+    <div style="text-align:center;margin-bottom:24px;">
+      <p style="font-size:14px;color:var(--text-muted);">Prefer to send a message directly? I usually reply within 24 hours.</p>
+    </div>
+    <div class="cf-row">
+      <div class="cf-field">
+        <label>Your Name</label>
+        <input type="text" id="cf-name" placeholder="Jane Smith" maxlength="60">
+      </div>
+      <div class="cf-field">
+        <label>Email</label>
+        <input type="email" id="cf-email" placeholder="jane@company.com">
+      </div>
+    </div>
+    <div class="cf-field" style="margin-bottom:12px;">
+      <label>Subject</label>
+      <input type="text" id="cf-subject" placeholder="Job opportunity / Collaboration / Question" maxlength="100">
+    </div>
+    <div class="cf-field" style="margin-bottom:12px;">
+      <label>Message</label>
+      <textarea id="cf-message" placeholder="Tell me about the role or what you'd like to discuss..." maxlength="2000"></textarea>
+    </div>
+    <button class="cf-submit-btn" onclick="sendContactForm()">
+      Send Message <i class="fa-solid fa-paper-plane"></i>
+    </button>
+    <div class="cf-success" id="cfSuccess">
+      ✅ Message sent! I'll get back to you within 24 hours.
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:12px;">
+      Or email directly at <a href="mailto:shibudhaslove@gmail.com" style="color:var(--accent);">shibudhaslove@gmail.com</a>
+    </p>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE OVERLAY ══ -->
+<div id="expOverlay" class="skill-overlay">
+  <div class="overlay-content" id="overlayContent"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
