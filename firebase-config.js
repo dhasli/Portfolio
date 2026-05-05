@@ -11,7 +11,7 @@
      4. Confirm this filename is in your .gitignore (already added)
    ============================================================ */
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyDB34Vh7nOITktPdtRf3HmM4p4QndtAHyA",
   authDomain: "blog-database-99391.firebaseapp.com",
   projectId: "blog-database-99391",
