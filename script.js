@@ -154,7 +154,7 @@ const skillData = {
     icon: '☁️', title: 'Virtualization & Cloud',
     sections: [
       { subtitle: 'Hypervisors', items: ['VMware ESXi · vSphere · vCenter', 'Microsoft Hyper-V', 'VMware Workstation (Lab)'] },
-      { subtitle: 'Cloud (Learning)', items: ['AWS Cloud Practitioner Essentials', 'EC2 · S3 · IAM fundamentals'] },
+      { subtitle: 'Cloud (Learning)', items: ['Microsoft Azure', 'IAM fundamentals'] },
       { subtitle: 'Remote Access', items: ['RDP · SSH · AnyDesk · TeamViewer', 'VPN troubleshooting'] }
     ]
   },
@@ -329,3 +329,173 @@ function closeExpModal() {
 }
 document.getElementById('expOverlay').addEventListener('click', function(e) { if (e.target === this) closeExpModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExpModal(); });
+
+/* ════════════════════════════════════════
+   SCROLL PROGRESS BAR
+════════════════════════════════════════ */
+(function () {
+  const bar = document.getElementById('scroll-progress');
+  if (!bar) return;
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total    = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = total > 0 ? (scrolled / total * 100) + '%' : '0%';
+  }, { passive: true });
+})();
+
+/* ════════════════════════════════════════
+   BACK TO TOP BUTTON
+════════════════════════════════════════ */
+(function () {
+  const btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+})();
+
+/* ════════════════════════════════════════
+   ACTIVE NAV LINK HIGHLIGHT (desktop)
+════════════════════════════════════════ */
+(function () {
+  const navLinks = document.querySelectorAll('.nav-right a');
+  if (!navLinks.length) return;
+
+  const sectionIds = ['about','skills','Experiences','certs','blog','contact'];
+  const sections   = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      navLinks.forEach(a => a.classList.remove('nav-active'));
+      const active = document.querySelector(`.nav-right a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('nav-active');
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => obs.observe(s));
+})();
+
+/* ════════════════════════════════════════
+   MOBILE DRAWER
+════════════════════════════════════════ */
+(function () {
+  const hamburger   = document.getElementById('hamburger');
+  const drawer      = document.getElementById('mobileDrawer');
+  const overlay     = document.getElementById('drawerOverlay');
+  const closeBtn    = document.getElementById('drawerClose');
+  const drawerLinks = document.querySelectorAll('.drawer-link');
+  if (!hamburger || !drawer) return;
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    overlay.classList.add('visible');
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('drawer-open');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('visible');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('drawer-open');
+  }
+
+  hamburger.addEventListener('click', () =>
+    drawer.classList.contains('open') ? closeDrawer() : openDrawer());
+  closeBtn.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+  });
+
+  drawerLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      closeDrawer();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 320);
+    });
+  });
+
+  // Highlight active section in drawer
+  const sections = document.querySelectorAll('section[id]');
+  const dObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      drawerLinks.forEach(l => l.classList.remove('active'));
+      const match = document.querySelector(`.drawer-link[href="#${entry.target.id}"]`);
+      if (match) match.classList.add('active');
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => dObs.observe(s));
+})();
+
+/* ════════════════════════════════════════
+   CERT MODAL
+════════════════════════════════════════ */
+function openCertModal(title, imgSrc) {
+  document.getElementById('certModalTitle').textContent = title;
+  document.getElementById('certModalImg').src = imgSrc;
+  document.getElementById('certModalImg').alt = title;
+  const modal = document.getElementById('certModal');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCertModal(e) {
+  if (e && e.target !== document.getElementById('certModal')) return;
+  document.getElementById('certModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('certModal')?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+/* ════════════════════════════════════════
+   BLOG VIEW COUNTS — load from Firebase
+   Uses same firebase-config from blog pages
+   but here just reads counts, doesn't increment
+════════════════════════════════════════ */
+(async function () {
+  const viewSpans = document.querySelectorAll('.blog-view-count[data-blog]');
+  if (!viewSpans.length) return;
+
+  // Dynamically import Firebase only if needed (index page)
+  try {
+    const { initializeApp, getApps } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, doc, getDoc } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { firebaseConfig } = await import('./firebase-config.js');
+
+    const app = getApps().length
+      ? getApps()[0]
+      : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    viewSpans.forEach(async span => {
+      const blogId = span.dataset.blog;
+      try {
+        const snap = await getDoc(doc(db, 'page-views', blogId));
+        if (snap.exists()) {
+          const count = snap.data().views || 0;
+          span.textContent = count >= 1000
+            ? (count / 1000).toFixed(1) + 'k'
+            : count;
+        } else {
+          span.textContent = '0';
+        }
+      } catch { span.textContent = '—'; }
+    });
+  } catch (e) {
+    console.warn('View count load skipped:', e.message);
+  }
+})();

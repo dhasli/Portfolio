@@ -249,13 +249,21 @@
 </head>
 <body>
 
+<!-- ══ SCROLL PROGRESS BAR ══ -->
+<div id="scroll-progress"></div>
+
+<!-- ══ BACK TO TOP ══ -->
+<button id="back-to-top" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fa-solid fa-chevron-up"></i>
+</button>
+
 <!-- ══ AVAILABILITY BANNER ══ -->
 <div class="avail-banner" id="availBanner">
   <div class="avail-dot"></div>
   <span class="avail-text">
-    <strong>Open to new opportunities</strong> — Infrastructure · Backup & Storage · System Administration ·
-    <a href="https://linkedin.com/in/shibu-dhas" target="_blank">Connect on LinkedIn →</a>
-  </span>
+  <strong>New:</strong> Built a real-world DMZ lab 
+  <a href="blog-dmz-lab.html" target="_blank">Read case study →</a>
+</span>
   <button class="avail-close" onclick="closeBanner()" aria-label="Close">✕</button>
 </div>
 
@@ -271,8 +279,33 @@
       <a href="#blog">Blog</a>
       <a href="#contact">Contact</a>
     </div>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- ══ MOBILE DRAWER ══ -->
+<div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+  <div class="drawer-header">
+    <span class="drawer-logo">Shibu A</span>
+    <button class="drawer-close" id="drawerClose" aria-label="Close menu">✕</button>
+  </div>
+  <nav class="drawer-nav">
+    <a href="#about"       class="drawer-link"><span class="drawer-icon">👤</span>About</a>
+    <a href="#skills"      class="drawer-link"><span class="drawer-icon">⚙️</span>Skills</a>
+    <a href="#Experiences" class="drawer-link"><span class="drawer-icon">💼</span>Experience</a>
+    <a href="#certs"       class="drawer-link"><span class="drawer-icon">🎓</span>Certs</a>
+    <a href="#blog"        class="drawer-link"><span class="drawer-icon">📝</span>Blog</a>
+    <a href="#contact"     class="drawer-link"><span class="drawer-icon">📬</span>Contact</a>
+  </nav>
+  <div class="drawer-footer">
+    <a href="https://linkedin.com/in/shibu-dhas" target="_blank" class="drawer-social"><i class="fa-brands fa-linkedin"></i></a>
+    <a href="https://wa.me/+97471587959"          target="_blank" class="drawer-social"><i class="fa-brands fa-whatsapp"></i></a>
+    <a href="https://x.com/shibudhas3"            target="_blank" class="drawer-social"><i class="fa-brands fa-x-twitter"></i></a>
+  </div>
+</div>
+<div class="drawer-overlay" id="drawerOverlay"></div>
 
 <!-- ══ HERO ══ -->
 <section class="hero">
@@ -351,6 +384,19 @@
       <span class="learning-tag">CCNA</span>
       <span class="learning-tag">Azure</span>
       <span class="learning-tag">Git</span>
+    </div>
+
+    <!-- Education strip -->
+    <div style="max-width:780px;margin:36px auto 0;">
+      <div class="cert-group-label" style="margin-top:0;">Education</div>
+      <div class="education-strip">
+        <div class="edu-icon">🎓</div>
+        <div class="edu-body">
+          <div class="edu-degree">B.E. Computer Science & Engineering</div>
+          <div class="edu-detail">Anna University · Chennai · 2020</div>
+        </div>
+        <span class="edu-badge">Degree</span>
+      </div>
     </div>
   </div>
 </section>
@@ -496,68 +542,119 @@
     <h2 class="section-title">Certifications & Training</h2>
   </div>
 
-  <div class="certs-grid">
-    <div class="cert-card">
-      <div class="cert-icon">🎓</div>
-      <div class="cert-body">
-        <div class="cert-name">SSRT — Storage System Recovery & Troubleshooting</div>
-        <div class="cert-issuer">NetApp · Sutherland Global Services</div>
-      </div>
-      <span class="cert-badge badge-verified">Verified</span>
-    </div>
-    <div class="cert-card">
-      <div class="cert-icon">🏅</div>
-      <div class="cert-body">
-        <div class="cert-name">Dell EMC NetWorker — Advanced Administration</div>
-        <div class="cert-issuer">Dell EMC · Wipro Limited (Internal Certification)</div>
-      </div>
-      <span class="cert-badge badge-verified">Verified</span>
-    </div>
-    <div class="cert-card">
-      <div class="cert-icon">🏆</div>
-      <div class="cert-body">
-        <div class="cert-name">Wipro Excellence Awards (×3)</div>
-        <div class="cert-issuer">Wipro Limited — Dedication & Outstanding Performance</div>
-      </div>
-      <span class="cert-badge badge-verified">Awarded</span>
-    </div>
-<div class="cert-card">
-  <div class="cert-icon">🎓</div>
-  <div class="cert-body">
-    <div class="cert-name">Diploma in Computer Hardware Maintenance</div>
-    <div class="cert-issuer">
-      Genius Softwares & Computer Education Pvt. Ltd. · 2014
-    </div>
-  </div>
-  <span class="cert-badge badge-verified">Certified</span>
-</div>
+  <!-- Group 1: Certified & Awarded (have documents) -->
+  <div style="max-width:960px;margin:0 auto;">
+    <div class="cert-group-label">Certified &amp; Awarded</div>
+    <div class="certs-grid" style="margin-top:0;">
 
-    <div class="cert-card">
-  <div class="cert-icon">🌐</div>
-  <div class="cert-body">
-    <div class="cert-name">Cisco Certified Network Associate (CCNA)</div>
-    <div class="cert-issuer">Cisco Systems</div>
-  </div>
-      <span class="cert-badge badge-learning">In Progress</span>
-    </div>
-    <div class="cert-card">
-      <div class="cert-icon">🔧</div>
-      <div class="cert-body">
-        <div class="cert-name">VMware vSphere: Install, Configure, Manage</div>
-        <div class="cert-issuer">VMware — Self-study + Lab environment</div>
+      <div class="cert-card has-doc" onclick="openCertModal('Wipro Excellence Award ×3','assets/img/certs/wipro-award.jpg',)">
+        <div class="cert-icon">🏆</div>
+        <div class="cert-body">
+          <div class="cert-name">Wipro Excellence Awards (×3)</div>
+          <div class="cert-issuer">Wipro Limited — Dedication & Outstanding Performance</div>
+          <div class="cert-view-link"><i class="fa-solid fa-eye"></i> View Certificate</div>
+        </div>
+        <span class="cert-badge badge-verified">Awarded</span>
       </div>
-      <span class="cert-badge badge-training">Lab-verified</span>
-    </div>
-    <div class="cert-card">
-      <div class="cert-icon">📚</div>
-      <div class="cert-body">
-        <div class="cert-name">Linux System Administration (RHEL / CentOS)</div>
-        <div class="cert-issuer">Self-study + Production experience — 5 years</div>
+
+      <div class="cert-card has-doc" onclick="openCertModal('Diploma in Computer Hardware Maintenance','assets/img/certs/diploma-hardware.jpg')">
+        <div class="cert-icon">🎓</div>
+        <div class="cert-body">
+          <div class="cert-name">Diploma in Computer Hardware Maintenance</div>
+          <div class="cert-issuer">Genius Softwares & Computer Education Pvt. Ltd. · 2014</div>
+          <div class="cert-view-link"><i class="fa-solid fa-eye"></i> View Certificate</div>
+        </div>
+        <span class="cert-badge badge-verified">Certified</span>
       </div>
-      <span class="cert-badge badge-training">Production-verified</span>
+
+      <div class="cert-card has-doc" onclick="openCertModal('NetWorker Integration with Hyper-V','assets/img/certs/networker-hyperv.jpg')">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-body">
+          <div class="cert-name">NetWorker Integration with Hyper-V</div>
+          <div class="cert-issuer">Dell EMC · Wipro Limited</div>
+          <div class="cert-view-link"><i class="fa-solid fa-eye"></i> View Certificate</div>
+        </div>
+        <span class="cert-badge badge-verified">Verified</span>
+      </div>
+
+      <div class="cert-card has-doc" onclick="openCertModal('Dell NetWorker Implementation and Administration','assets/img/certs/networker-admin.jpg')">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-body">
+          <div class="cert-name">Dell NetWorker Implementation & Administration</div>
+          <div class="cert-issuer">Dell EMC · Wipro Limited</div>
+          <div class="cert-view-link"><i class="fa-solid fa-eye"></i> View Certificate</div>
+        </div>
+        <span class="cert-badge badge-verified">Verified</span>
+      </div>
+
+      <div class="cert-card has-doc" onclick="openCertModal('Data Domain VTL Configuration and Troubleshooting','assets/img/certs/data-domain-vtl.jpg')">
+        <div class="cert-icon">🏅</div>
+        <div class="cert-body">
+          <div class="cert-name">Data Domain VTL Configuration & Troubleshooting</div>
+          <div class="cert-issuer">Dell EMC · Wipro Limited</div>
+          <div class="cert-view-link"><i class="fa-solid fa-eye"></i> View Certificate</div>
+        </div>
+        <span class="cert-badge badge-verified">Verified</span>
+      </div>
+
+    </div>
+
+    <!-- Group 2: Skills & Training (no documents) -->
+    <div class="cert-group-label">Skills &amp; Training</div>
+    <div class="certs-grid" style="margin-top:0;">
+
+      <div class="cert-card">
+        <div class="cert-icon">🎓</div>
+        <div class="cert-body">
+          <div class="cert-name">SSRT — Storage System Recovery & Troubleshooting</div>
+          <div class="cert-issuer">NetApp · Sutherland Global Services</div>
+        </div>
+        <span class="cert-badge badge-verified">Verified</span>
+      </div>
+
+      <div class="cert-card">
+        <div class="cert-icon">🌐</div>
+        <div class="cert-body">
+          <div class="cert-name">Cisco Certified Network Associate (CCNA)</div>
+          <div class="cert-issuer">Cisco Systems</div>
+        </div>
+        <span class="cert-badge badge-learning">In Progress</span>
+      </div>
+
+      <div class="cert-card">
+        <div class="cert-icon">🔧</div>
+        <div class="cert-body">
+          <div class="cert-name">VMware vSphere: Install, Configure, Manage</div>
+          <div class="cert-issuer">VMware — Self-study + Lab environment</div>
+        </div>
+        <span class="cert-badge badge-training">Lab-verified</span>
+      </div>
+
+      <div class="cert-card">
+        <div class="cert-icon">📚</div>
+        <div class="cert-body">
+          <div class="cert-name">Linux System Administration (RHEL / CentOS)</div>
+          <div class="cert-issuer">Self-study + Production experience — 5 years</div>
+        </div>
+        <span class="cert-badge badge-training">Production-verified</span>
+      </div>
+
     </div>
   </div>
 </section>
+
+<!-- ══ CERT MODAL ══ -->
+<div id="certModal" onclick="closeCertModal(event)">
+  <div class="cert-modal-inner">
+    <div class="cert-modal-header">
+      <span class="cert-modal-title" id="certModalTitle"></span>
+      <button class="cert-modal-close" onclick="closeCertModal()">✕</button>
+    </div>
+    <div class="cert-modal-img-wrap">
+      <img id="certModalImg" src="" alt="Certificate">
+    </div>
+  </div>
+</div>
 
 <!-- ══ BLOG ══ -->
 <section id="blog" class="reveal">
@@ -578,7 +675,7 @@
         <div class="blog-card-title">💀 The Day 16TB Vanished — And Everyone Looked at Me</div>
         <div class="blog-card-excerpt">A banking client. 16TB of backup data gone — not failed, not corrupted, just missing. A tape that was never supposed to move, had moved. One wrong dropdown. 45 days of investigation. Here's how we found out what really happened.</div>
         <div class="blog-card-footer">
-          <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 12 min read <span>·</span> May 2025</div>
+          <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 12 min read <span>·</span> May 2025 <span>·</span> <i class="fa-regular fa-eye"></i> <span class="blog-view-count" data-blog="16tb">—</span></div>
           <div class="blog-card-read">Read post <i class="fa-solid fa-arrow-right"></i></div>
         </div>
       </div>
@@ -595,7 +692,7 @@
     <div class="blog-card-title">🔐 My "Secure" Network Wasn't Actually Secure</div>
     <div class="blog-card-excerpt">I built a DMZ lab to prove I understood network isolation. The website loaded without NAT, without port forwarding, without any rules. That moment of confusion taught me more than six months of reading ever did.</div>
     <div class="blog-card-footer">
-      <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 9 min read <span>·</span> May 2025</div>
+      <div class="blog-card-meta"><i class="fa-regular fa-clock"></i> 9 min read <span>·</span> May 2025 <span>·</span> <i class="fa-regular fa-eye"></i> <span class="blog-view-count" data-blog="dmz-lab">—</span></div>
       <div class="blog-card-read">Read post <i class="fa-solid fa-arrow-right"></i></div>
     </div>
   </div>

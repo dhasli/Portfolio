@@ -305,3 +305,13 @@
   .comment-time { display: none; }
   .bac-img { width: 48px; height: 48px; }
 }
+
+/* ── Blog view count inline ── */
+.blog-view-inline {
+  color: var(--text-muted);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.blog-view-inline i { font-size: 12px; }

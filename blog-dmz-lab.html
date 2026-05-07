@@ -344,6 +344,8 @@
           <span class="blog-read-time"><i class="fa-regular fa-clock"></i> 9 min read</span>
           <span class="blog-meta-sep">·</span>
           <span class="blog-date">May 2025</span>
+          <span class="blog-meta-sep">·</span>
+          <span class="blog-view-inline"><i class="fa-regular fa-eye"></i> <span id="pageViewCount">—</span> views</span>
         </div>
       </div>
     </div>
@@ -772,13 +774,14 @@
           </div>
         </div>
       </div>
-      </div>
+            <!-- Comments List -->
+      <div class="comments-list" id="commentsList"></div> 
     </div>
   </section>
 
 </main>
 
-<script src="blog-script.js"></script>
+<script type="module" src="blog-script.js"></script>
 <script>
   // Issue accordion
   function toggleIssue(id) {

@@ -1,8 +1,7 @@
 /* ============================================================
-   SHIBU A — BLOG SCRIPT  v3
-   Comments: Firebase Firestore backend (persistent, real-time)
-   UI:       Existing frontend fully preserved
-   Security: API key loaded from firebase-config.js (git-ignored)
+   SHIBU A — BLOG SCRIPT  v4
+   Comments: Firebase Firestore — persistent, real-time
+   Views:    Auto-increment on page load, display in header
    ============================================================ */
 
 import { firebaseConfig } from './firebase-config.js';
@@ -10,19 +9,38 @@ import { firebaseConfig } from './firebase-config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
   getFirestore, collection, addDoc, updateDoc, deleteDoc,
-  doc, query, orderBy, serverTimestamp, onSnapshot
+  doc, getDoc, setDoc, increment,
+  query, orderBy, serverTimestamp, onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ── Init ──
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
-// ── Auto-detect which blog page → separate Firestore collection per post ──
-// blog-16tb.html    → "comments-16tb"
-// blog-dmz-lab.html → "comments-dmz"
-// Any future post   → works automatically
 const pageName   = location.pathname.split('/').pop().replace('.html','').replace('blog-','') || 'general';
 const COLLECTION = `comments-${pageName}`;
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE VIEW COUNTER
+   Increments on every visit, shows in #pageViewCount
+═══════════════════════════════════════════════════════════ */
+async function trackPageView() {
+  const viewRef = doc(db, 'page-views', pageName);
+  try {
+    await setDoc(viewRef, { views: increment(1) }, { merge: true });
+    const snap = await getDoc(viewRef);
+    const count = snap.exists() ? (snap.data().views || 0) : 0;
+    const el = document.getElementById('pageViewCount');
+    if (el) {
+      el.textContent = count >= 1000
+        ? (count / 1000).toFixed(1) + 'k'
+        : count;
+    }
+  } catch (e) {
+    console.warn('View tracking failed:', e.message);
+  }
+}
+
+trackPageView();
 
 /* ═══════════════════════════════════════════════════════════
    LOAD COMMENTS — real-time listener
